@@ -17,8 +17,6 @@ import component.Util;
 
 public class Login extends JPanel{
 
-	
-	
 	JTextField jtLogin;
 	JPasswordField jPassword;
 	
@@ -48,7 +46,8 @@ public class Login extends JPanel{
 		add(jbOpen);
 		add(jbForget);
 		
-		jtLogin.setBackground(Color.darkGray);
+		//fundo 
+		jtLogin.setBackground(Color.DARK_GRAY);
 		jPassword.setBackground(Color.DARK_GRAY);
 		
 		// cor da fonte
@@ -79,12 +78,15 @@ public class Login extends JPanel{
 	
 	protected void paintComponent(Graphics g) {
 		
+		// fundo
 		Image img = Util.menuBackGround.getImage();
 		g.drawImage(img, 0, 0, getWidth() , getHeight(), this);
 		
+		// Logo
 		img = Util.logo.getImage();
 		g.drawImage(img, Util.DEFAULT_SCREEN_WIDTH - 610, 20, 300, 200, this);
 		
+		// Campos
 		g.setColor(Color.WHITE);
 		
 		g.drawString("LOGIN:", 280, 247);

@@ -11,4 +11,5 @@ public final class Util {
 	// imagens
 	public static final ImageIcon menuBackGround = new ImageIcon("res\\backGround\\back.jpg");
 	public static final ImageIcon logo = new ImageIcon("res\\menus\\logo.png");
+	
 }

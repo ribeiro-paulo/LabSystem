@@ -15,6 +15,7 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener {
 	
 	protected Menu menu;
 	protected Login login;
+	protected Loading loading;
 	
 	public static void main(String args[]) {
 		new LabSystem();
@@ -24,6 +25,7 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener {
 		
 		menu = new Menu();
 		login = new Login();
+		loading = new Loading();
 		
 		setTitle("LabSystem");
 		setSize(Util.DEFAULT_SCREEN_WIDTH, Util.DEFAULT_SCREEN_HEIGHT);
@@ -32,7 +34,19 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener {
 		setResizable(false);
 		setVisible(true);
 		
-		add(login);
+		add(loading);
+		
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		// fecha o JPanel da Tela de carregando e abre a tela de login
+		loading.setVisible(false);
+		this.add(this.login);
+		login.requestFocus();
 		
 		login.jbOpen.addActionListener(this);
 		
