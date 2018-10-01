@@ -10,6 +10,10 @@ import component.Util;
 
 public class Loading extends JPanel{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	ImageIcon gifLoading;
 	ImageIcon back;
 	
@@ -22,12 +26,10 @@ public class Loading extends JPanel{
 	protected void paintComponent(Graphics g){
 		
 		// Fundo
-		Image img = Util.menuBackGround.getImage();
+		Image img = Util.background.getImage();
 		g.drawImage(img, 0, 0, getWidth() , getHeight(), this);
 		
-		// Logo
-		img = Util.logo.getImage();
-		g.drawImage(img, Util.DEFAULT_SCREEN_WIDTH - 610, 100, 300, 200, this);
+	
 		
 		// Gif carregando
 		img = back.getImage();
@@ -35,6 +37,8 @@ public class Loading extends JPanel{
 		
 		img = gifLoading.getImage();
 		g.drawImage(img, Util.DEFAULT_SCREEN_WIDTH / 2 - 300, Util.DEFAULT_SCREEN_HEIGHT - 250, 600, 35, this);
+		
+		
 	}
 	
 }
