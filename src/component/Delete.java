@@ -34,6 +34,6 @@ public class Delete extends JPanel{
 		Image img;
 		
 		img = background.getImage();
-		g.drawImage(img, 0, 0, getWidth(), getHeight(), null);
+		g.drawImage(img, 0, 0, img.getWidth(this), img.getHeight(this), null);
 	}
 }

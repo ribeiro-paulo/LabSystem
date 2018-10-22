@@ -1,8 +1,11 @@
 package labSystem;
 
+import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -13,6 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 
 import component.Consult;
 import component.Delete;
@@ -26,11 +30,14 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashSet;
 
-public class LabSystem extends JFrame implements KeyListener, ActionListener, MouseListener {
+public class LabSystem extends JFrame implements KeyListener, ActionListener, MouseListener, ItemListener {
 
 	private static final long serialVersionUID = 1L;
 
+	protected LoginAdm adm;
+	protected Acess acess;
 	protected Register register;
 	protected Login login;
 	protected Loading loading;
@@ -49,20 +56,26 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 	 * construtor
 	 */
 	public LabSystem() {
-
+		
+		update = new Update();
+		consult = new Consult();
 		register = new Register();
 		login = new Login();
 		employee = new AddEmployee();
+		acess = new Acess();
+		adm = new LoginAdm();
+		
 
 		setIconImage(Toolkit.getDefaultToolkit().getImage("res\\logo\\computador.png"));
 		setTitle("LabSystem");
-		setSize(Util.DEFAULT_SCREEN_WIDTH, Util.DEFAULT_SCREEN_HEIGHT);
+		setSize(login.backgroundEye.getIconWidth(), login.backgroundEye.getIconHeight());
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setVisible(true);
 
-		add(login);
+		Util.thisScreen = register;
+		add(register);
 
 		listener();
 	}
@@ -71,8 +84,6 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 	 * instacia a ultima tela ao clicar esc
 	 */
 	public void newInstanceScreen(JPanel screen) {
-
-		
 
 		if (screen == login)
 			login = new Login();
@@ -88,7 +99,7 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 	public void anotherScreen(JPanel remove, JPanel newScreen) {
 
 		Util.thisScreen = newScreen;
-		Util.lastScreen = new Login();
+		Util.lastScreen = remove;
 
 		remove.setVisible(false);
 		this.add(newScreen);
@@ -100,40 +111,73 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 	/*
 	 * leitura de todas as ações
 	 */
+	@SuppressWarnings("unchecked")
 	public void listener() {
 
-		// Botão
+		// Configura em cada JPanel o enter
+		@SuppressWarnings("rawtypes")
+		HashSet conj = new HashSet(Util.thisScreen.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
+		conj.add(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
+		Util.thisScreen.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, conj);
+
+		/* ActionListener */
+		acess.jbAdm.addActionListener(this);
+		acess.jbEmployee.addActionListener(this);
+
 		login.jbOpen.addActionListener(this);
 		login.jtLogin.addActionListener(this);
+		login.jbEye.addActionListener(this);
 		login.jbAddEmployee.addActionListener(this);
+		
+		adm.jbOpen.addActionListener(this);
+		adm.jbEye.addActionListener(this);
 
 		employee.jbSave.addActionListener(this);
+		
+		register.jbSave.addActionListener(this);
+		
+		update.jbSearch.addActionListener(this);
 
-		// Mouse
+		Util.jbConsult.addActionListener(this);
+		Util.jbRegister.addActionListener(this);
+		Util.jbUpdate.addActionListener(this);
+		Util.jbDelete.addActionListener(this);
+
+		/* MouseListener */
+		acess.jbAdm.addMouseListener(this);
+		acess.jbEmployee.addMouseListener(this);
+
 		login.jtLogin.addMouseListener(this);
 		login.jPassword.addMouseListener(this);
 		login.jbHelp.addMouseListener(this);
 		login.jbAddEmployee.addMouseListener(this);
 		login.jbOpen.addMouseListener(this);
+		login.jbEye.addMouseListener(this);
+		
+		adm.jbEye.addMouseListener(this);
+		adm.jbOpen.addMouseListener(this);
 
 		employee.jtName.addMouseListener(this);
 		employee.jtRegistration.addMouseListener(this);
 		employee.jbSave.addMouseListener(this);
 		employee.jbCancel.addMouseListener(this);
 
+		Util.jbConsult.addMouseListener(this);
 		Util.jbRegister.addMouseListener(this);
 		Util.jbUpdate.addMouseListener(this);
-		Util.jbConsult.addMouseListener(this);
 		Util.jbDelete.addMouseListener(this);
 
-		Util.jbConsult.addActionListener(this);
-		Util.jbRegister.addActionListener(this);
-		Util.jbUpdate.addActionListener(this);
-		Util.jbDelete.addActionListener(this);
-		
-		// teclado
-		this.addKeyListener(this);
+		/* KeyListener */
+		login.jtLogin.addKeyListener(this);
+		login.jPassword.addKeyListener(this);
+		login.jbOpen.addKeyListener(this);
+		login.jbOpen.addFocusListener(null);
+
 		this.requestFocus();
+		this.addKeyListener(this);
+
+		/* ItemListener */
+		register.jcCategory.addItemListener(this);
 	}
 
 	/*
@@ -141,14 +185,55 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		
+		/*
+		 * Troca dos botões do menu de cada tela
+		 */
 
-		// entrar
+		if (e.getSource() == Util.jbConsult)
+			anotherScreen(Util.thisScreen, consult = new Consult());
+
+		if (e.getSource() == Util.jbRegister)
+			anotherScreen(Util.thisScreen, register = new Register());
+
+		if (e.getSource() == Util.jbUpdate)
+			anotherScreen(Util.thisScreen, update = new Update());
+
+		if (e.getSource() == Util.jbDelete)
+			anotherScreen(Util.thisScreen, delete = new Delete());
+
+		// Modo de acess
+		if (e.getSource() == acess.jbEmployee)
+			anotherScreen(Util.thisScreen, login = new Login());
+
+		if (e.getSource() == acess.jbAdm)
+			anotherScreen(Util.thisScreen, adm = new LoginAdm());
+		
+		// Login administrador
+		if (e.getSource() == adm.jbEye && !Util.isPassword) {
+			Util.isPassword = true;
+			adm.jPassword.setEchoChar(Util.seePasword);
+		} else {
+			adm.jPassword.setEchoChar(Util.invisible);
+			Util.isPassword = false;
+		}
+		
+		// Mostrar senha Administrador
 		if (e.getSource() == login.jbOpen) {
 			if (login.jtLogin.getText().length() > 0 && login.jPassword.getPassword().length > 0)
 				anotherScreen(this.login, this.register = new Register());
 			else
 				Util.isWrong = true;
 			login.repaint();
+		}
+
+		// Mostrar senha Funcionário
+		if (e.getSource() == login.jbEye && !Util.isPassword) {
+			Util.isPassword = true;
+			login.jPassword.setEchoChar(Util.seePasword);
+		} else {
+			login.jPassword.setEchoChar(Util.invisible);
+			Util.isPassword = false;
 		}
 
 		// adicionar funcionário
@@ -161,24 +246,16 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 			employee.save = true;
 		}
 		
-		/*
-		 * Leitura dos botões do menu de cada tela
-		 */
-
-		if (e.getSource() == Util.jbConsult)
-			anotherScreen(Util.thisScreen, consult = new Consult());
+		if(e.getSource() == register.jbSave)
+			register.insertObject(register.jtName, register.jtDescription, register.jtAmount, register.jcCategory, register.jcSector);
 		
-		if(e.getSource() == Util.jbRegister)
-			anotherScreen(Util.thisScreen, register = new Register());
-		
-		if(e.getSource() == Util.jbUpdate)
+		if(e.getSource() == update.jbSearch) {
+			JTextField texto = update.jtName;
 			anotherScreen(Util.thisScreen, update = new Update());
-		
-		if(e.getSource() == Util.jbDelete)
-			anotherScreen(Util.thisScreen, delete = new Delete());
-	}
+			update.searchName(texto);
+		}
 
-	
+	}
 
 	/*
 	 * eventos do teclado
@@ -192,8 +269,15 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 			newInstanceScreen(Util.lastScreen);
 		}
 
+		/*
+		 * if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+		 * if(login.jPassword.getText().equals("")) login.jPassword.requestFocus(); else
+		 * this.anotherScreen(this.login, this.register = new Register()); }
+		 * 
+		 */
 		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-			// login.jtLogin.
+
+			System.out.println("focou");
 		}
 	}
 
@@ -232,6 +316,8 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 		if (e.getSource() == login.jPassword)
 			login.jPassword.setBorder(BorderFactory.createEtchedBorder(Util.jPressedColor, Util.jPressedColor));
 
+		if (e.getSource() == register.jcCategory)
+			register.jcCategory.setBounds(400, 400, 300, 30);
 	}
 
 	// Quando clicar em outro evento
@@ -243,10 +329,35 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 	// Quando o mouse passar por cima
 	@Override
 	public void mouseEntered(MouseEvent e) {
+		// Acesso adm
+		if (e.getSource() == acess.jbAdm)
+			acess.jbAdm.setIcon(acess.imgAdm);
+		
+		// acesso funcionário
+		if (e.getSource() == acess.jbEmployee)
+			acess.jbEmployee.setIcon(acess.imgEmployee);
 
 		// login / entrar
 		if (e.getSource() == login.jbOpen)
 			login.jbOpen.setIcon(login.imgOpen);
+		
+		// adm /  entrar
+		if(e.getSource() == adm.jbOpen)
+			adm.jbOpen.setIcon(adm.imgOpen);
+		
+		/* Olho do Adm */
+		if(e.getSource() == adm.jbEye && !Util.isPassword)
+			adm.jbEye.setIcon(login.imgEyeFalse);
+		
+		if(e.getSource() == adm.jbEye && Util.isPassword)
+			adm.jbEye.setIcon(login.imgEyeTrue);
+		
+		/* olho do Funcionário*/
+		if (e.getSource() == login.jbEye && !Util.isPassword)
+			login.jbEye.setIcon(login.imgEyeFalse);
+
+		if (e.getSource() == login.jbEye && Util.isPassword)
+			login.jbEye.setIcon(login.imgEyeTrue);
 
 		// Lampada de ajuda
 		if (e.getSource() == login.jbHelp)
@@ -264,7 +375,9 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 		if (e.getSource() == employee.jbCancel)
 			employee.jbCancel.setIcon(employee.imgCancel);
 
-		// menu / consultar
+		/*
+		 * menu
+		 */
 		if (e.getSource() == Util.jbConsult)
 			Util.jbConsult.setIcon(Util.imgConsult);
 
@@ -277,14 +390,29 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 		if (e.getSource() == Util.jbDelete)
 			Util.jbDelete.setIcon(Util.imgDelete);
 
+		// Adicionar / limpar tudo
+		if (e.getSource() == register.jbClear)
+			register.jbClear.setIcon(register.imgClear);
+
+		//
+
 	}
 
 	// Quando o mouse sair de cima
 	@Override
 	public void mouseExited(MouseEvent e) {
 
+		// modo de acesso
+		acess.jbAdm.setIcon(null);
+		acess.jbEmployee.setIcon(null);
+
 		// login / entrar
 		login.jbOpen.setIcon(null);
+		login.jbEye.setIcon(null);
+		
+		// adm/ entrar
+		adm.jbOpen.setIcon(null);
+		adm.jbEye.setIcon(null);
 
 		// lampada de ajuda
 		login.jbHelp.setIcon(login.imgHelp);
@@ -297,6 +425,8 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 
 		// add Funcionario / cancelar
 		employee.jbCancel.setIcon(employee.imgCancelTransparent);
+
+		register.jbClear.setIcon(null);
 
 		if (e.getSource() == Util.jbRegister)
 			Util.jbRegister.setIcon(null);
@@ -351,4 +481,12 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 		}
 
 	}
+
+	/* Evento dos itens */
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
 }

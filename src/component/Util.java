@@ -3,29 +3,44 @@ package component;
 import java.awt.Color;
 import java.awt.Font;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 public final class Util {
 
+	/* Constantes do BANCO DE DADOS*/
+	public static String driver = "com.mysql.jdbc.Driver";
+	public static String url = "jdbc:mysql://localhost:3306/LabSystem";
+	public static String user = "root";
+	public static String password = "1234";
+	
 	// erro
 	public static boolean isWrong = false;
+	
+	// senha
+	public final static char seePasword = '\u0000';
+	public final static char invisible = '\u2022';
+	public static boolean isPassword = false;
 
 	// tamanho da tela
 	public static final int DEFAULT_SCREEN_WIDTH = 900;
 	public static final int DEFAULT_SCREEN_HEIGHT = 600;
 
 	// fonte
-	public static final Font font = new Font("Arial", Font.PLAIN, 15);
+	public static final Font font = new Font("Arial", Font.BOLD, 18);
 
 	/*
-	 * Constantes para a cor de fundo RGB Link:
-	 * https://www.webpagefx.com/web-design/hex-to-rgb/
+	 * Constantes para a cor de fundo RGB Link:  new Color(15,34,71)
+	 * https://www.webpagefx.com/web-design/hex-to-rgb/ 
 	 */
 	public static final Color colorBackground = Color.WHITE;
 	public static final Color jColor = Color.WHITE;
 	public static final Color jPressedColor = Color.WHITE;
+	public static final Color jColortext =  Color.black;
 
 	/*
 	 * imagens
@@ -44,12 +59,30 @@ public final class Util {
 	/*
 	 * Insere as imagens do botão
 	 */
-	public static void setButton(JButton button, ImageIcon img) {
+	public static void setButton(JButton button, ImageIcon img, int x, int y, int width, int height) {
+		button.setBounds(x, y, width, height);
 		button.setIcon(img);
 		button.setText(null);
 		button.setContentAreaFilled(false);
 		button.setBorderPainted(false);
 		button.setContentAreaFilled(false);
+	}
+	
+	public static void setText(JTextField text, int x, int y, int width, int height) {
+		text.setBounds(x, y, width, height);
+		text.setBackground(colorBackground);// fundo
+		text.setForeground(jColortext);// cor da fonte
+		text.setBorder(BorderFactory.createEtchedBorder(Util.jColor, Util.jColor)); // borda
+		text.setFont(font);// font
+	}
+	
+	public static JLabel setLabel(int x, int y, String text, String value) {
+		
+		JLabel jlabel = new JLabel("-" + text + " " + value);
+		jlabel.setFont(Util.font);
+		jlabel.setBounds(x, y, 400, 70);
+		
+		return jlabel;
 	}
 
 	public static ImageIcon imgRegister;
@@ -68,9 +101,9 @@ public final class Util {
 
 	public static void newMenu() {
 		
-		 x = 5; y = 156;
+		 x = 6; y = 165;
 		 width = 240; height = 50;
-		 space = 17;
+		 space = 20;
 		
 		jbRegister = new JButton();
 		jbUpdate = new JButton();
@@ -82,22 +115,22 @@ public final class Util {
 		imgDelete = new ImageIcon("res\\menus\\excluir.png");
 		imgConsult = new ImageIcon("res\\menus\\consultar.png");
 
-		jbRegister.setBounds(x, y, width, height);
-		jbConsult.setBounds(x, y += height + space, width, height);
-		jbUpdate.setBounds(x, y += height + space, width, height);
-		jbDelete.setBounds(x, y += height + space, width, height);
-
 		// texto e borda do botão de cadastrar
-		setButton(jbRegister, null);
+		setButton(jbRegister, null, 0, 0, 0, 0);
 
 		// Atualizar
-		setButton(jbUpdate, null);
+		setButton(jbUpdate, null, 0, 0, 0, 0);
 
 		// texto e borda do botão de excluir
-		setButton(jbDelete, null);
+		setButton(jbDelete, null, 0, 0, 0, 0);
 
 		// texto e borda do botão de consulta
-		setButton(jbConsult, null);
+		setButton(jbConsult, null, 0, 0, 0, 0);
+		
+		jbRegister.setBounds(x, y, width, height);
+		jbConsult.setBounds(x, y += height + space, imgConsult.getIconWidth(), imgConsult.getIconHeight());
+		jbUpdate.setBounds(x, y += height + space, imgUpdate.getIconWidth(), imgUpdate.getIconHeight());
+		jbDelete.setBounds(x, y += height + space , imgDelete.getIconWidth(), imgDelete.getIconHeight());
 	}
 
 }

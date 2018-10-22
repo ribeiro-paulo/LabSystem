@@ -160,8 +160,8 @@ public class AddEmployee extends JPanel {
 			Class.forName(driver);
 			conn = DriverManager.getConnection(url, user, password);
 			Statement st = conn.createStatement();
-			String sql = "INSERT INTO CADASTRO VALUES ('" + name.getText() + "','" + registration.getText() + "', '"+thisPassword.getText()+"', '"+confirmPassword.getText()+"')";
-			st.executeUpdate(sql);
+			//String sql = "INSERT INTO CADASTRO VALUES ('" + name.getText() + "','" + registration.getText() + "', '"+thisPassword.getText()+"', '"+confirmPassword.getText()+"')";
+			//st.executeUpdate(sql);
 			st.close();
 			conn.close();
 		} catch (SQLException | ClassNotFoundException ex) {
