@@ -11,40 +11,69 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
-import component.Consult;
-import component.Delete;
-import component.Register;
-import component.Update;
-import component.Util;
+import category.CategoryDAO;
+import category.ConsultCategory;
+import category.DeleteCategory;
+import category.RegisterCategory;
+import category.UpdateCategory;
+import employee.RegisterEmployee;
+import login.Login;
+import login.RegisterAdm;
+import object.ConnectionFactory;
+import object.Consult;
+import object.Delete;
+import object.Register;
+import object.Update;
+import object.Util;
+import sector.ConsultSector;
+import sector.DeleteSector;
+import sector.RegisterSector;
+import sector.UpdateSector;
+import term.ConsultTerm;
+import term.DeleteTerm;
+import term.RegisterTerm;
+import term.UpdateTerm;
 
 //banco de dados
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashSet;
 
 public class LabSystem extends JFrame implements KeyListener, ActionListener, MouseListener, ItemListener {
 
 	private static final long serialVersionUID = 1L;
-
-	protected LoginAdm adm;
-	protected Acess acess;
-	protected Register register;
+	
+	protected Start start;
+	protected RegisterAdm rAdm;
+	
+	public Register register;
 	protected Login login;
-	protected Loading loading;
-	protected AddEmployee employee;
 	protected Consult consult;
 	protected Update update;
 	protected Delete delete;
+	
+	public RegisterEmployee rEmployee;
+	
+	protected RegisterSector rSector;
+	protected ConsultSector cSector;
+	protected UpdateSector uSector;
+	protected DeleteSector dSector;
+	
+	protected RegisterCategory rCategory;
+	protected ConsultCategory cCategory; 
+	protected UpdateCategory uCategory;
+	protected DeleteCategory dCategory;
+	
+	protected RegisterTerm rTerm;
+	protected ConsultTerm cTerm;
+	protected UpdateTerm uTerm;
+	protected DeleteTerm dTerm;
+	
 
 	protected boolean openEmployee = false;
 
@@ -57,28 +86,47 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 	 */
 	public LabSystem() {
 		
+		rAdm = new RegisterAdm();
+		
+		dCategory = new DeleteCategory();
+		rCategory = new RegisterCategory();
+		uCategory = new UpdateCategory();
+		
+		rSector = new RegisterSector();
+		cSector = new ConsultSector();
+		uSector = new UpdateSector();
+		dSector = new DeleteSector();
+		
+		delete = new Delete();
 		update = new Update();
 		consult = new Consult();
+		
 		register = new Register();
+		
+		start = new Start();
 		login = new Login();
-		employee = new AddEmployee();
-		acess = new Acess();
-		adm = new LoginAdm();
+		
+		rEmployee = new RegisterEmployee();
+		
+		uTerm = new UpdateTerm();
+		cTerm = new ConsultTerm();
+		dTerm = new DeleteTerm();
+		rTerm = new RegisterTerm();
 		
 
 		setIconImage(Toolkit.getDefaultToolkit().getImage("res\\logo\\computador.png"));
 		setTitle("LabSystem");
-		setSize(login.backgroundEye.getIconWidth(), login.backgroundEye.getIconHeight());
+		setSize(login.getBackgorund().getIconWidth(), login.getBackgorund().getIconHeight());
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setVisible(true);
 
-		Util.thisScreen = register;
-		add(register);
+		Util.thisScreen = start;
+		add(start);
 
 		listener();
-	}
+	} 
 
 	/*
 	 * instacia a ultima tela ao clicar esc
@@ -89,18 +137,16 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 			login = new Login();
 		Util.lastScreen = login;
 
-		if (screen == employee)
-			employee = new AddEmployee();
 	}
 
 	/*
 	 * metodo para trocar de tela
 	 */
 	public void anotherScreen(JPanel remove, JPanel newScreen) {
-
+		
 		Util.thisScreen = newScreen;
 		Util.lastScreen = remove;
-
+		
 		remove.setVisible(false);
 		this.add(newScreen);
 		newScreen.requestFocus();
@@ -119,65 +165,83 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 		HashSet conj = new HashSet(Util.thisScreen.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS));
 		conj.add(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
 		Util.thisScreen.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, conj);
-
+	
 		/* ActionListener */
-		acess.jbAdm.addActionListener(this);
-		acess.jbEmployee.addActionListener(this);
-
-		login.jbOpen.addActionListener(this);
-		login.jtLogin.addActionListener(this);
-		login.jbEye.addActionListener(this);
-		login.jbAddEmployee.addActionListener(this);
+		rAdm.getJbNext().addActionListener(this);
+		start.getJbStart().addActionListener(this);
 		
-		adm.jbOpen.addActionListener(this);
-		adm.jbEye.addActionListener(this);
-
-		employee.jbSave.addActionListener(this);
-		
+		login.getJbLogin().addActionListener(this);
+		login.getJbEye().addActionListener(this);
+		login.getJbBefore().addActionListener(this);
+	
 		register.jbSave.addActionListener(this);
-		
-		update.jbSearch.addActionListener(this);
 
+		update.jbSearch.addActionListener(this);
+		//update.jbSave.addActionListener(this); ---------- erro
+
+		delete.jbSearch.addActionListener(this);
+		delete.jbDelete.addActionListener(this);
+		
+		rEmployee.getJbNot().addActionListener(this);
+		rEmployee.getJbYes().addActionListener(this);
+		rEmployee.getJbSave().addActionListener(this);
+		
+		rCategory.getJbSave().addActionListener(this);
+		uCategory.getJbSearch().addActionListener(this);
+		uCategory.getJbSave().addActionListener(this);
+		dCategory.getJbDelete().addActionListener(this);
+		
+		rSector.getJbSave().addActionListener(this);
+		uSector.getJbSearch().addActionListener(this);
+		uSector.getJbSave().addActionListener(this);
+		dSector.getJbDelete().addActionListener(this);
+		
+		rTerm.getJbYes().addActionListener(this);
+		rTerm.getJbNot().addActionListener(this);
+		rTerm.getJbSave().addActionListener(this);
+		cTerm.getJbSearch().addActionListener(this);
+		uTerm.getJbSearch().addActionListener(this);
+		uTerm.getSitNot().addActionListener(this);
+		uTerm.getSitYes().addActionListener(this);
+		uTerm.getEnYes().addActionListener(this);
+		uTerm.getEnNot().addActionListener(this);
+		uTerm.getJbConfirm().addActionListener(this);
+		dTerm.getJbSearch().addActionListener(this);
+		dTerm.getJbYes().addActionListener(this);
+		dTerm.getJbNot().addActionListener(this);
+		
 		Util.jbConsult.addActionListener(this);
 		Util.jbRegister.addActionListener(this);
 		Util.jbUpdate.addActionListener(this);
 		Util.jbDelete.addActionListener(this);
-
-		/* MouseListener */
-		acess.jbAdm.addMouseListener(this);
-		acess.jbEmployee.addMouseListener(this);
-
-		login.jtLogin.addMouseListener(this);
-		login.jPassword.addMouseListener(this);
-		login.jbHelp.addMouseListener(this);
-		login.jbAddEmployee.addMouseListener(this);
-		login.jbOpen.addMouseListener(this);
-		login.jbEye.addMouseListener(this);
 		
-		adm.jbEye.addMouseListener(this);
-		adm.jbOpen.addMouseListener(this);
-
-		employee.jtName.addMouseListener(this);
-		employee.jtRegistration.addMouseListener(this);
-		employee.jbSave.addMouseListener(this);
-		employee.jbCancel.addMouseListener(this);
+		Util.jbSector.addActionListener(this);
+		Util.jbCategory.addActionListener(this);
+		Util.jbEmployee.addActionListener(this);
+		
+		Util.jbComponent.addActionListener(this);
+		Util.jbTerm.addActionListener(this);
+		
+		/* MouseListener */
 
 		Util.jbConsult.addMouseListener(this);
 		Util.jbRegister.addMouseListener(this);
 		Util.jbUpdate.addMouseListener(this);
 		Util.jbDelete.addMouseListener(this);
 
-		/* KeyListener */
-		login.jtLogin.addKeyListener(this);
-		login.jPassword.addKeyListener(this);
-		login.jbOpen.addKeyListener(this);
-		login.jbOpen.addFocusListener(null);
-
 		this.requestFocus();
 		this.addKeyListener(this);
 
 		/* ItemListener */
 		register.jcCategory.addItemListener(this);
+	}
+	
+	private void haveAdm() {
+		
+		if(Util.getListKey("matricula", "funcionario").size() == 0)
+			anotherScreen(Util.thisScreen, rAdm = new RegisterAdm());
+		else
+			anotherScreen(Util.thisScreen, login = new Login());
 	}
 
 	/*
@@ -187,74 +251,232 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 	public void actionPerformed(ActionEvent e) {
 		
 		/*
-		 * Troca dos botões do menu de cada tela
+		 *  ------------------------LOGIN------------------------- 
 		 */
-
+		
+		if(e.getSource() == start.getJbStart())
+			haveAdm();	
+		
+		if(e.getSource() == login.getJbEye())
+			login.Eye();
+		
+		if(e.getSource() == login.getJbLogin())
+			login.login(this);
+		
+		if(e.getSource() == login.getJbBefore())
+			anotherScreen(Util.thisScreen, start = new Start());
+		
+		if(e.getSource() == rAdm.getJbNext()) {
+			rAdm.register();
+			anotherScreen(Util.thisScreen, login = new Login());
+		}
+		
+		/*
+		 *  ----------------------Administrador----------------------- 
+		 */
+		
+		// barra inf
+		if(e.getSource() == Util.jbEmployee)
+			anotherScreen(Util.thisScreen, rEmployee = new RegisterEmployee());
+		
+		if(e.getSource() == Util.jbSector)
+			anotherScreen(Util.thisScreen, rSector = new RegisterSector());
+		
+		if(e.getSource() == Util.jbCategory)
+			anotherScreen(Util.thisScreen, rCategory = new RegisterCategory());
+		
+		// barra lateral
 		if (e.getSource() == Util.jbConsult)
-			anotherScreen(Util.thisScreen, consult = new Consult());
+			this.controller("consultar");
 
 		if (e.getSource() == Util.jbRegister)
-			anotherScreen(Util.thisScreen, register = new Register());
+			this.controller("adicionar");
 
 		if (e.getSource() == Util.jbUpdate)
-			anotherScreen(Util.thisScreen, update = new Update());
+			this.controller("atualizar");
 
 		if (e.getSource() == Util.jbDelete)
-			anotherScreen(Util.thisScreen, delete = new Delete());
-
-		// Modo de acess
-		if (e.getSource() == acess.jbEmployee)
-			anotherScreen(Util.thisScreen, login = new Login());
-
-		if (e.getSource() == acess.jbAdm)
-			anotherScreen(Util.thisScreen, adm = new LoginAdm());
+			this.controller("excluir");
 		
-		// Login administrador
-		if (e.getSource() == adm.jbEye && !Util.isPassword) {
-			Util.isPassword = true;
-			adm.jPassword.setEchoChar(Util.seePasword);
-		} else {
-			adm.jPassword.setEchoChar(Util.invisible);
-			Util.isPassword = false;
+		// barra inf
+		if(e.getSource() == Util.jbComponent)
+			anotherScreen(Util.thisScreen, register = new Register());
+		
+		if(e.getSource() == Util.jbTerm)
+			anotherScreen(Util.thisScreen, rTerm = new RegisterTerm()); 
+		
+		/*
+		 *  -------------------------Funcionário----------------------- 
+		 */
+		
+		if(e.getSource() == rEmployee.getJbNot())
+			rEmployee.ball(false);
+			
+		if(e.getSource() == rEmployee.getJbYes())
+			rEmployee.ball(true);
+		
+		if(e.getSource() == rEmployee.getJbSave())
+			rEmployee.register();
+		/*
+		 * ---------------------------Categoria ------------------------
+		 */
+		
+		// adiconar categoria / salver
+		if(e.getSource() == rCategory.getJbSave()) {
+			
+			if(Util.notNull(rCategory.getJtName().getText())) {
+				
+				Connection connection = new ConnectionFactory().getConnection();
+				CategoryDAO catDAO = new CategoryDAO();
+				try {
+					catDAO.adicionar(rCategory);
+				} catch (SQLException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+				try {
+					connection.close();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				Util.setSaved(rCategory);
+				rCategory.getJtName().setText("");
+			}else {
+				Util.setNotNull(rCategory);
+			}
 		}
 		
-		// Mostrar senha Administrador
-		if (e.getSource() == login.jbOpen) {
-			if (login.jtLogin.getText().length() > 0 && login.jPassword.getPassword().length > 0)
-				anotherScreen(this.login, this.register = new Register());
+		if(e.getSource() == uCategory.getJbSearch()) {		
+			
+			if(Util.notNull(uCategory.getJtName().getText()))
+				
+				uCategory.modeUpdate();
 			else
-				Util.isWrong = true;
-			login.repaint();
+				Util.setNotNull(uCategory);
+		
 		}
-
-		// Mostrar senha Funcionário
-		if (e.getSource() == login.jbEye && !Util.isPassword) {
-			Util.isPassword = true;
-			login.jPassword.setEchoChar(Util.seePasword);
-		} else {
-			login.jPassword.setEchoChar(Util.invisible);
-			Util.isPassword = false;
-		}
-
-		// adicionar funcionário
-		if (e.getSource() == login.jbAddEmployee)
-			anotherScreen(login, employee);
-
-		if (e.getSource() == employee.jbSave && employee.save == false) {
-			employee.insertEmployee(employee.jtName, employee.jtRegistration, employee.jpPassword,
-					employee.jpConfirmPassword);
-			employee.save = true;
+				
+		if(e.getSource() == uCategory.getJbSave()) {
+			if(Util.notNull(uCategory.getJtName().getText())) {
+				
+				uCategory.update();
+				anotherScreen(Util.thisScreen, uCategory = new UpdateCategory());
+				Util.setSaved(uCategory);
+			}else {
+				Util.setNotNull(uCategory);
+			}
 		}
 		
-		if(e.getSource() == register.jbSave)
-			register.insertObject(register.jtName, register.jtDescription, register.jtAmount, register.jcCategory, register.jcSector);
+		if(e.getSource() == dCategory.getJbDelete()) {
+			
+			dCategory.delete();
+			anotherScreen(Util.thisScreen, dCategory = new DeleteCategory());
+			Util.setDeleted(dCategory);
+		}
 		
-		if(e.getSource() == update.jbSearch) {
-			JTextField texto = update.jtName;
+		/*
+		 * ---------------------------Setor ---------------------------
+		 */
+		
+		if(e.getSource() == rSector.getJbSave())
+			rSector.register();
+		
+		if(e.getSource() == uSector.getJbSearch())
+			uSector.modeUpdate();	
+		
+		if(e.getSource() == uSector.getJbSave())
+			uSector.update();
+		
+		if(e.getSource() == dSector.getJbDelete())
+			dSector.delete();
+		
+		/*
+		 * -------------------TERMO DE REPONSABILIDADE ------------------
+		 */
+		
+		if(e.getSource() == rTerm.getJbYes())
+			rTerm.ball(true);
+		
+		if(e.getSource() == rTerm.getJbNot())
+			rTerm.ball(false);
+		
+		if(e.getSource() == rTerm.getJbSave())
+			rTerm.register();
+		
+		if(e.getSource() == cTerm.getJbSearch())
+			cTerm.search();
+		
+		if(e.getSource() == uTerm.getJbSearch())
+			uTerm.search();
+		
+		if(e.getSource() == uTerm.getSitYes())
+			uTerm.ball(1);
+		
+		if(e.getSource() == uTerm.getSitNot())
+			uTerm.ball(2);
+		
+		if(e.getSource() == uTerm.getEnYes())
+			uTerm.ball(3);
+		
+		if(e.getSource() == uTerm.getEnNot())
+			uTerm.ball(4);
+		
+		if(e.getSource() == uTerm.getJbConfirm())
+			uTerm.update();
+		
+		if(e.getSource() == dTerm.getJbSearch())
+			dTerm.search();
+		
+		//if(e.getSource() == dTerm.getJbYes())
+			//dTerm.detele();
+		
+		if(e.getSource() == dTerm.getJbNot())
+			anotherScreen(Util.thisScreen, dTerm = new DeleteTerm());
+		/*
+		 * ---------------------------Objeto ---------------------------
+		 */
+
+		// Cadastro Componentes / salvar
+		if (e.getSource() == register.jbSave) {
+			
+			if ( Util.notNull(register.jtName.getText()) && Util.notNull(register.jtDescription.getText()) && Util.notNull(register.jtAmount.getText()) && Util.notNull(register.jcCategory.getSelectedItem().toString()) && Util.notNull(register.jcSector.getSelectedItem().toString())) {		
+				
+				register.save();
+				anotherScreen(Util.thisScreen, register = new Register());
+				register.paintSaved();
+			}else{
+				
+				register.paintAllField(register);
+			}
+
+		}
+		// Atualizar / buscar
+		if (e.getSource() == update.jbSearch) {
+
+			JTextField text = update.jtName;
 			anotherScreen(Util.thisScreen, update = new Update());
-			update.searchName(texto);
+			update.update = true;
+			update.searchName(text);
 		}
 
+		// Atualizar / salvar
+		if (e.getSource() == update.jbSave) {
+			System.out.println("Foi");
+			update.updateItens();
+		}
+
+		// Excluir / buscar
+		if (e.getSource() == delete.jbSearch) {
+			Util.name = delete.jtName.getText();
+			anotherScreen(Util.thisScreen, delete = new Delete());
+			delete.showObject();
+		}
+
+		// Excluir / apagar
+		if (e.getSource() == delete.jbDelete)
+			delete.delete();
 	}
 
 	/*
@@ -264,9 +486,10 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 	public void keyPressed(KeyEvent e) {
 		// ESC
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			newInstanceScreen(Util.thisScreen);
-			anotherScreen(Util.thisScreen, Util.lastScreen);
-			newInstanceScreen(Util.lastScreen);
+			//newInstanceScreen(Util.thisScreen);
+			anotherScreen(Util.thisScreen, login = new Login());
+			login.getJtMatriculetion().requestFocus();
+			//newInstanceScreen(Util.lastScreen);
 		}
 
 		/*
@@ -275,10 +498,6 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 		 * this.anotherScreen(this.login, this.register = new Register()); }
 		 * 
 		 */
-		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-
-			System.out.println("focou");
-		}
 	}
 
 	@Override
@@ -298,24 +517,7 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 	// Quando mouse clicar em alguma coisa
 	@Override
 	public void mouseClicked(MouseEvent e) {
-
-		// Tira o erro ao clicar em login ou senha
-		if (e.getSource() == login.jtLogin || e.getSource() == login.jPassword)
-			Util.isWrong = false;
-		login.repaint();
-
-		if (e.getSource() == employee.jtName)
-			employee.jtName.setText(null);
-
-		if (e.getSource() == employee.jtRegistration)
-			employee.jtRegistration.setText(null);
-
-		if (e.getSource() == login.jtLogin)
-			login.jtLogin.setBorder(BorderFactory.createEtchedBorder(Util.jPressedColor, Util.jPressedColor));
-
-		if (e.getSource() == login.jPassword)
-			login.jPassword.setBorder(BorderFactory.createEtchedBorder(Util.jPressedColor, Util.jPressedColor));
-
+		
 		if (e.getSource() == register.jcCategory)
 			register.jcCategory.setBounds(400, 400, 300, 30);
 	}
@@ -329,52 +531,7 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 	// Quando o mouse passar por cima
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		// Acesso adm
-		if (e.getSource() == acess.jbAdm)
-			acess.jbAdm.setIcon(acess.imgAdm);
 		
-		// acesso funcionário
-		if (e.getSource() == acess.jbEmployee)
-			acess.jbEmployee.setIcon(acess.imgEmployee);
-
-		// login / entrar
-		if (e.getSource() == login.jbOpen)
-			login.jbOpen.setIcon(login.imgOpen);
-		
-		// adm /  entrar
-		if(e.getSource() == adm.jbOpen)
-			adm.jbOpen.setIcon(adm.imgOpen);
-		
-		/* Olho do Adm */
-		if(e.getSource() == adm.jbEye && !Util.isPassword)
-			adm.jbEye.setIcon(login.imgEyeFalse);
-		
-		if(e.getSource() == adm.jbEye && Util.isPassword)
-			adm.jbEye.setIcon(login.imgEyeTrue);
-		
-		/* olho do Funcionário*/
-		if (e.getSource() == login.jbEye && !Util.isPassword)
-			login.jbEye.setIcon(login.imgEyeFalse);
-
-		if (e.getSource() == login.jbEye && Util.isPassword)
-			login.jbEye.setIcon(login.imgEyeTrue);
-
-		// Lampada de ajuda
-		if (e.getSource() == login.jbHelp)
-			login.jbHelp.setIcon(login.imgHelpPress);
-
-		// Adicionar funcionário
-		if (e.getSource() == login.jbAddEmployee)
-			login.jbAddEmployee.setIcon(login.imgEmployeePress);
-
-		// add funcionario / salvar
-		if (e.getSource() == employee.jbSave)
-			employee.jbSave.setIcon(employee.imgSave);
-
-		// add funciona / cancelar
-		if (e.getSource() == employee.jbCancel)
-			employee.jbCancel.setIcon(employee.imgCancel);
-
 		/*
 		 * menu
 		 */
@@ -402,30 +559,6 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 	@Override
 	public void mouseExited(MouseEvent e) {
 
-		// modo de acesso
-		acess.jbAdm.setIcon(null);
-		acess.jbEmployee.setIcon(null);
-
-		// login / entrar
-		login.jbOpen.setIcon(null);
-		login.jbEye.setIcon(null);
-		
-		// adm/ entrar
-		adm.jbOpen.setIcon(null);
-		adm.jbEye.setIcon(null);
-
-		// lampada de ajuda
-		login.jbHelp.setIcon(login.imgHelp);
-
-		// adicionar funcionário
-		login.jbAddEmployee.setIcon(login.imgEmployee);
-
-		// add funcionário / salvar
-		employee.jbSave.setIcon(employee.imgSaveTransparent);
-
-		// add Funcionario / cancelar
-		employee.jbCancel.setIcon(employee.imgCancelTransparent);
-
 		register.jbClear.setIcon(null);
 
 		if (e.getSource() == Util.jbRegister)
@@ -449,37 +582,126 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 	}
 
 	/*
-	 * banco de dados
+	 * controla as telas
 	 */
-	public void selectEmployee(JTextField registration, JPasswordField jpassword) {
-
-		String driver = "com.mysql.jdbc.Driver";
-		String url = "jdbc:mysql://localhost:3306/systemlab";
-		String user = "root";
-		String password = "1234";
-		Connection conn;
-		try {
-			Class.forName(driver);
-			conn = DriverManager.getConnection(url, user, password);
-
-			String sql = "selected matricula from cadastro where matrica = " + registration.getText() + "";
-			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery(sql);
-
-			while (rs.next()) {
-				if (rs.getCharacterStream(2).equals(registration)) {
-					openEmployee = true;
-					break;
-				}
+	private void controller(String button) {
+		/*
+		 * 1 - Adicionar
+		 * 2 - Consultar 
+		 * 3 - Atualizar 
+		 * 4 - Excluir
+		 */
+		switch(button) {
+		case "adicionar":
+			
+			switch(Util.screen) {
+			case "objeto":
+				anotherScreen(Util.thisScreen, register = new Register());
+			break;
+			
+			case "funcionario":
+				anotherScreen(Util.thisScreen, rEmployee = new RegisterEmployee());
+			break;
+			
+			case "categoria":
+				anotherScreen(Util.thisScreen, rCategory = new RegisterCategory());
+			break;
+			
+			case "setor":
+				anotherScreen(Util.thisScreen, rSector = new RegisterSector());
+			break;
+			
+			case "termo":
+				anotherScreen(Util.thisScreen, rTerm = new RegisterTerm());
+			break;
 			}
-
-			rs.close();
-			st.close();
-			conn.close();
-		} catch (SQLException | ClassNotFoundException ex) {
-			ex.printStackTrace();
+			
+		break; 
+		
+		// -------
+		
+		case "consultar":
+			
+			switch(Util.screen) {
+			case "objeto":
+				anotherScreen(Util.thisScreen, consult = new Consult());
+			break;
+			
+			case "funcionario":
+				//anotherScreen(Util.thisScreen, rEmployee = new RegisterEmployee());
+			break;
+			
+			case "categoria":
+				anotherScreen(Util.thisScreen, cCategory = new ConsultCategory());
+			break;
+			
+			case "setor":
+				anotherScreen(Util.thisScreen, cSector = new ConsultSector());
+			break;
+			
+			case "termo":
+				anotherScreen(Util.thisScreen, cTerm = new ConsultTerm());
+			break;
+			}
+			
+		break;
+		
+		// -------
+		
+		case "atualizar":
+			
+			switch(Util.screen) {
+			case "objeto":
+				anotherScreen(Util.thisScreen, update = new Update());
+			break;
+			
+			case "funcionario":
+				//anotherScreen(Util.thisScreen, rEmployee = new RegisterEmployee());
+			break;
+			
+			case "categoria":
+				anotherScreen(Util.thisScreen, uCategory = new UpdateCategory());
+			break;
+			
+			case "setor":
+				anotherScreen(Util.thisScreen, uSector = new UpdateSector());
+			break;
+			
+			case "termo":
+				anotherScreen(Util.thisScreen, uTerm = new UpdateTerm());
+			break;
+			}
+			
+		break;
+		
+		// -------
+		
+		case "excluir":
+			
+			switch(Util.screen) {
+			case "objeto":
+				anotherScreen(Util.thisScreen, delete = new Delete());
+			break;
+			
+			case "funcionario":
+				//anotherScreen(Util.thisScreen, rEmployee = new RegisterEmployee());
+			break;
+			
+			case "categoria":
+				anotherScreen(Util.thisScreen, dCategory = new DeleteCategory());
+			break;
+			
+			case "setor":
+				anotherScreen(Util.thisScreen, dSector = new DeleteSector());
+			break;
+			
+			case "termo":
+				anotherScreen(Util.thisScreen, dTerm = new DeleteTerm());
+			break;
+			}
+			
+		break;
 		}
-
 	}
 
 	/* Evento dos itens */
