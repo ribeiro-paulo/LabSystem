@@ -78,17 +78,12 @@ public class Register extends JPanel {
 		jcCategory.setBackground(Color.white);
 		jcSector.setBackground(Color.white);
 		
-		//jlSaved.setIcon(imgSaved);
 		
 		add(jtName);
 		add(jtDescription);
 		add(jcCategory);
-		add(jcSector);
 		add(jtAmount);
 
-		// add(jtCategory);
-		// add(jtSector);
-		// add(jbClear);
 
 		jcCategory.addItem("");
 		jcSector.addItem("");

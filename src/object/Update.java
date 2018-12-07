@@ -7,7 +7,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Vector;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -30,7 +32,6 @@ public class Update extends JPanel {
 	public JTextField jtAmount;
 
 	public JComboBox<String> jcCategory;
-	public JComboBox<String> jcSector;
 
 	public boolean update;
 	public int code;
@@ -47,14 +48,20 @@ public class Update extends JPanel {
 
 		Util.setText(jtName, 425, 221, 285, 30);
 		jbSearch = Util.setButton(jbSearch, 640, 280, 75, 30, this);
+		jbSave = Util.setButton(jbSave, 705, 455, 70, 30, this);
+		
+		jbSave.setVisible(false);
 
 		Util.newMenu(this);
+		Util.createButtonEmployee(this);
 		add(jtName);
 	}
 
 	/* Pesquisa o nome que o usuário digitou */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void searchName(JTextField name) {
-
+		
+		jbSave.setVisible(true);
 		jtName.setVisible(false);
 		jbSearch.setVisible(false);
 
@@ -77,20 +84,16 @@ public class Update extends JPanel {
 				jtAmount = new JTextField();
 
 				jcCategory = new JComboBox<String>();
-				jcSector = new JComboBox<String>();
 
 				Util.setText(jtName, 430, 100, 310, 28);
 				Util.setText(jtDescription, 467, 171, 310, 28);
-				Util.setText(jtAmount, 480, 378, 310, 28);
-
-				jbSave = Util.setButton(jbSave, 705, 455, 70, 30, this);
+				Util.setText(jtAmount, 480, 315, 290, 28);
+				
 				jcCategory.setBounds(460, 246, 310, 28);
-				jcSector.setBounds(460, 317, 310, 28);
 
 				add(jtName);
 				add(jtDescription);
 				add(jcCategory);
-				add(jcSector);
 				add(jtAmount);
 
 				code = rs.getInt("codigo");
@@ -105,9 +108,9 @@ public class Update extends JPanel {
 			rs.close();
 			pstPesq.close();
 			conn.close();
-
-			Util.returnItens(this.jcCategory, this.jcSector);
-
+			
+			jcCategory.setModel(new DefaultComboBoxModel(new Vector(Util.getList("nome", "categoria"))));
+			
 		} catch (SQLException | ClassNotFoundException ex) {
 			ex.printStackTrace();
 		}
@@ -121,15 +124,14 @@ public class Update extends JPanel {
 			Class.forName(Util.driver);
 			conn = DriverManager.getConnection(Util.url, Util.user, Util.password);
 
-			String sqlAltera = "update objeto set nome=?, descricao=?, situacao=?, qtde=?, catCod=?, setorNum=? where codigo=?";
+			String sqlAltera = "update objeto set nome=?, descricao=?, situacao=?, qtde=?, catCod=? where codigo=?";
 			PreparedStatement pstAlt = conn.prepareStatement(sqlAltera);		
 			pstAlt.setString(1, jtName.getText());
 			pstAlt.setString(2, jtDescription.getText());
 			pstAlt.setString(3, "Em uso");
 			pstAlt.setString(4, jtAmount.getText());
 			pstAlt.setInt(5, Util.CategoryCode(jcCategory.getSelectedItem().toString()));
-			pstAlt.setInt(6, Util.sectorNumber(jcSector.getSelectedItem().toString()));
-			pstAlt.setInt(7, code);
+			pstAlt.setInt(6, code);
 			pstAlt.executeUpdate();
 			
 			pstAlt.close();

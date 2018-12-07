@@ -32,6 +32,7 @@ public class Login extends JPanel {
 	private JButton jbBefore;
 	private JButton jbEye;
 	private boolean eye = false;
+
 	
 	public Login() {
 		
@@ -49,30 +50,34 @@ public class Login extends JPanel {
 	}
 	
 	/* verificação dos dados após clicar em entrar */
+	@SuppressWarnings("deprecation")
 	public void login(LabSystem lab) {
 		
 		int is;
-		Connection connection = new ConnectionFactory().getConnection();
-		LoginDAO loDAO = new LoginDAO();
-		is = loDAO.searchPerson(this);
+		if(Util.notNull(jtMatriculetion.getText()) && Util.notNull(jpPassword.getText())) {
 		
-		try {
-			connection.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Connection connection = new ConnectionFactory().getConnection();
+			LoginDAO loDAO = new LoginDAO();
+			is = loDAO.searchPerson(this);
+			
+			try {
+				connection.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+			// funcio
+			if(is == 1) {
+				lab.anotherScreen(Util.thisScreen, lab.register = new Register());
+			}
+		
+			// Administrador
+			if(is == 2) {
+				lab.anotherScreen(Util.thisScreen, lab.rEmployee = new RegisterEmployee());
+			}
 		}
-		
-		// funcio
-		if(is == 1) {
-			lab.anotherScreen(Util.thisScreen, lab.register = new Register());
-		}
-		
-		// Administrador
-		if(is == 2) {
-			lab.anotherScreen(Util.thisScreen, lab.rEmployee = new RegisterEmployee());
-		}
-		
+		Util.setFound(this);
 		
 	}
 	

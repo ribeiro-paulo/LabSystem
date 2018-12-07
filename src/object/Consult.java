@@ -42,6 +42,7 @@ public class Consult extends JPanel {
 		jp = new JPanel();
 		
 		Util.newMenu(this);
+		Util.createButtonEmployee(this);
 		
 		listObject();
 		
@@ -78,7 +79,7 @@ public class Consult extends JPanel {
             	jlObject.setBounds( 310 - rs.getString("NOME").length() / 3 * rs.getString("NOME").length(), yTexto, 400, 70);
             	jp.add(jlObject);
             	
-            	jp.add(Util.setLabel(xTexto, yTexto += space, "Descrição", rs.getString("DESCRICAO")));
+            	jp.add(Util.setLabel(xTexto, yTexto += 45, "Descrição", rs.getString("DESCRICAO")));
             	
             	jp.add(Util.setLabel(xTexto, yTexto += space, "Situação", rs.getString("SITUACAO")));
             	
@@ -90,7 +91,7 @@ public class Consult extends JPanel {
             	jlObject.setBounds(75, fundo += 100, backgroundText.getIconWidth(), background.getIconHeight());
             	jp.add(jlObject);
             	
-            	yTexto+= 78; 
+            	yTexto+= 63; 
             	
             	fundo += 70;
 
@@ -100,10 +101,11 @@ public class Consult extends JPanel {
             }
             
             jsScroll = new JScrollPane(jp);
+            jsScroll.setBorder(null);
             jp.setPreferredSize( new Dimension(600, yTexto + 25));
             jp.setBackground(Color.WHITE);
             jp.setBorder(null);
-            jsScroll.setBounds(252, 0, 643, 573);
+            jsScroll.setBounds(252, 0, 643, 513);
             add(jsScroll);
             
             st.close();

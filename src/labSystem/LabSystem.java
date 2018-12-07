@@ -74,6 +74,7 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 	protected UpdateTerm uTerm;
 	protected DeleteTerm dTerm;
 	
+	protected boolean a = true;
 
 	protected boolean openEmployee = false;
 
@@ -98,9 +99,8 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 		dSector = new DeleteSector();
 		
 		delete = new Delete();
-		update = new Update();
 		consult = new Consult();
-		
+		update = new Update();
 		register = new Register();
 		
 		start = new Start();
@@ -177,7 +177,7 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 		register.jbSave.addActionListener(this);
 
 		update.jbSearch.addActionListener(this);
-		//update.jbSave.addActionListener(this); ---------- erro
+		update.jbSave.addActionListener(this);
 
 		delete.jbSearch.addActionListener(this);
 		delete.jbDelete.addActionListener(this);
@@ -380,17 +380,39 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 		 * ---------------------------Setor ---------------------------
 		 */
 		
-		if(e.getSource() == rSector.getJbSave())
-			rSector.register();
+		if(e.getSource() == rSector.getJbSave()) {
+			
+			if(Util.notNull(rSector.getJtName().getText()) && Util.notNull(rSector.getJtLimit().getText())) {
+				rSector.register();
+				Util.setSaved(rSector);
+				rSector.getJtLimit().setText("");
+				rSector.getJtName().setText("");
+			}else {
+				Util.setNotNull(rSector);
+			}
+		}
+		// não esquecer a senha da minha namorada 071303nsr
+		if(e.getSource() == uSector.getJbSearch()) {
+			if(Util.notNull(uSector.getJtName().getText())) 
+				uSector.modeUpdate();
+			else
+				Util.setNotNull(uSector);
+		}
 		
-		if(e.getSource() == uSector.getJbSearch())
-			uSector.modeUpdate();	
+		if(e.getSource() == uSector.getJbSave()) {
+			if(Util.notNull(uSector.getJtName().getText()) && Util.notNull(uSector.getJtLimit().getText())) {
+				uSector.update();
+				anotherScreen(Util.thisScreen, uSector = new UpdateSector());
+				Util.setSaved(uSector);
+			}else {
+				Util.setNotNull(uSector);
+			}
+		}
 		
-		if(e.getSource() == uSector.getJbSave())
-			uSector.update();
-		
-		if(e.getSource() == dSector.getJbDelete())
+		if(e.getSource() == dSector.getJbDelete()) {
 			dSector.delete();
+			Util.setDeleted(dSector);
+		}
 		
 		/*
 		 * -------------------TERMO DE REPONSABILIDADE ------------------
@@ -402,8 +424,19 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 		if(e.getSource() == rTerm.getJbNot())
 			rTerm.ball(false);
 		
-		if(e.getSource() == rTerm.getJbSave())
-			rTerm.register();
+		// ta duplicando
+		if(e.getSource() == rTerm.getJbSave()) {
+			
+			if(Util.notNull(rTerm.getJtDescrip().getText())) {
+				
+				rTerm.register();
+				anotherScreen(Util.thisScreen, rTerm = new RegisterTerm());
+				Util.setSaved(rTerm);
+			}else {
+				Util.setNotNull(rTerm);
+			}
+	
+		}
 		
 		if(e.getSource() == cTerm.getJbSearch())
 			cTerm.search();
@@ -423,14 +456,17 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 		if(e.getSource() == uTerm.getEnNot())
 			uTerm.ball(4);
 		
-		if(e.getSource() == uTerm.getJbConfirm())
+		if(e.getSource() == uTerm.getJbConfirm()) {
 			uTerm.update();
+			anotherScreen(Util.thisScreen, uTerm = new UpdateTerm());
+			Util.setSaved(uTerm);
+		}
 		
 		if(e.getSource() == dTerm.getJbSearch())
 			dTerm.search();
 		
-		//if(e.getSource() == dTerm.getJbYes())
-			//dTerm.detele();
+		if(e.getSource() == dTerm.getJbYes())
+			dTerm.detele();
 		
 		if(e.getSource() == dTerm.getJbNot())
 			anotherScreen(Util.thisScreen, dTerm = new DeleteTerm());
@@ -441,7 +477,7 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 		// Cadastro Componentes / salvar
 		if (e.getSource() == register.jbSave) {
 			
-			if ( Util.notNull(register.jtName.getText()) && Util.notNull(register.jtDescription.getText()) && Util.notNull(register.jtAmount.getText()) && Util.notNull(register.jcCategory.getSelectedItem().toString()) && Util.notNull(register.jcSector.getSelectedItem().toString())) {		
+			if ( Util.notNull(register.jtName.getText()) && Util.notNull(register.jtDescription.getText()) && Util.notNull(register.jtAmount.getText()) && Util.notNull(register.jcCategory.getSelectedItem().toString())) {		
 				
 				register.save();
 				anotherScreen(Util.thisScreen, register = new Register());
@@ -456,27 +492,36 @@ public class LabSystem extends JFrame implements KeyListener, ActionListener, Mo
 		if (e.getSource() == update.jbSearch) {
 
 			JTextField text = update.jtName;
-			anotherScreen(Util.thisScreen, update = new Update());
-			update.update = true;
-			update.searchName(text);
+			
+			if(!Util.getValue("codigo", "objeto", "nome", text.getText()).equals("not")) {
+				update.repaint();
+				update.update = true;
+				update.searchName(text);
+			}else
+				Util.setFoundMenu(update);
 		}
 
 		// Atualizar / salvar
 		if (e.getSource() == update.jbSave) {
-			System.out.println("Foi");
 			update.updateItens();
+			anotherScreen(Util.thisScreen, update = new Update());
+			Util.setSaved(update);
 		}
 
 		// Excluir / buscar
 		if (e.getSource() == delete.jbSearch) {
-			Util.name = delete.jtName.getText();
-			anotherScreen(Util.thisScreen, delete = new Delete());
+			Util.name = delete.getJc().getSelectedItem().toString();
+			delete.a = true;
+			delete.repaint();
 			delete.showObject();
 		}
 
 		// Excluir / apagar
-		if (e.getSource() == delete.jbDelete)
+		if (e.getSource() == delete.jbDelete) {
 			delete.delete();
+			anotherScreen(Util.thisScreen, delete = new Delete());
+			Util.setDeleted(delete);
+		}
 	}
 
 	/*

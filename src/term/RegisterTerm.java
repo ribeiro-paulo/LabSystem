@@ -35,9 +35,11 @@ public class RegisterTerm extends JPanel{
 	private char situetion;
 	private JButton jbSave;
 	private int termKey;
+	public boolean c = false;
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public RegisterTerm() {
+		
 		
 		Util.screen = "termo";
 		
@@ -61,6 +63,7 @@ public class RegisterTerm extends JPanel{
 		
 		jlBall.setIcon(ball);
 		add(jlBall);
+		ball(true);
 	}
 	
 	public void register() {
@@ -84,6 +87,7 @@ public class RegisterTerm extends JPanel{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		
 	}
 	

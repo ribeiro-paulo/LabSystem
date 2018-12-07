@@ -84,6 +84,31 @@ public final class Util {
 	public static final ImageIcon imgNotNull = new ImageIcon("res\\gif\\preenchaTodosOsCampos.gif");
 	public static final ImageIcon imgSaved = new ImageIcon("res\\gif\\dadosSalvos.gif");
 	public static final ImageIcon imgDeleted = new ImageIcon("res\\gif\\dadosExcluidos.gif");
+	public static final ImageIcon imgFound = new ImageIcon("res\\gif\\naoEncontrado.gif");
+	
+	public static JLabel setFoundMenu(JPanel jp) {
+		JLabel jl = new JLabel();
+
+		imgFound.getImage().flush();
+		jl.setIcon(imgFound);
+		jl.setBounds(375, 1, imgFound.getIconWidth(), imgFound.getIconHeight());
+
+		jp.add(jl);
+		jp.repaint();
+		return jl;
+	}
+	
+	public static JLabel setFound(JPanel jp) {
+		JLabel jl = new JLabel();
+
+		imgFound.getImage().flush();
+		jl.setIcon(imgFound);
+		jl.setBounds(278, 167, imgFound.getIconWidth(), imgFound.getIconHeight());
+
+		jp.add(jl);
+		jp.repaint();
+		return jl;
+	}
 	
 	public static JLabel setDeleted(JPanel jp) {
 		JLabel jl = new JLabel();

@@ -30,8 +30,8 @@ public class RegisterCategory extends JPanel{
 		Util.createButtonAdm(this);
 		Util.newMenu(this);
 		
-		Util.setText(jtName, 360, 175, 408, 28);
-		jbSave = Util.setButton(jbSave, 700, 235, 70, 30, this);
+		Util.setText(jtName,  396, 172, 407, 28);
+		jbSave = Util.setButton(jbSave, 735, 235, 70, 30, this);
 		
 		add(jtName);
 	}

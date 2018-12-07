@@ -124,7 +124,7 @@ public class UpdateTerm extends JPanel{
 		case 2:
 			sitBall.setBounds( 680, 213, 25, 25);
 			setDtAss(null);
-			setfAss((Integer) null);
+			setfAss(' ');
 			setSituetion("D");
 			break;
 			
